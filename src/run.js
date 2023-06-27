@@ -13,23 +13,35 @@ const {
 const DEFAULT_GLOBS = ["**/!(*.test|*.spec).@(js|ts)?(x)"];
 const DEFAULT_PROCESSORS = ["count-components-and-props"];
 
-async function run({
-  config,
-  configDir,
-  crawlFrom,
-  startTime,
-  method = "cli",
-}) {
-  const rootDir = config.rootDir || configDir;
-  const globs = config.globs || DEFAULT_GLOBS;
-  const files = new fdir()
+function grabFilesByDir ({globs = DEFAULT_GLOBS, config, crawlFrom}) {
+    const files = new fdir()
     .glob(...globs)
     .exclude(getExcludeFn(config.exclude))
     .withFullPaths()
     .crawl(crawlFrom)
     .sync();
 
-  if (files.length === 0) {
+  return files
+}
+
+async function run({
+  config,
+  configDir,
+  crawlFrom,
+  startTime,
+  crawlFiles,
+  method = "cli",
+}) {
+  const rootDir = config.rootDir || configDir;
+  const globs = config.globs || DEFAULT_GLOBS;
+  const files = crawlFiles || new fdir()
+    .glob(...globs)
+    .exclude(getExcludeFn(config.exclude))
+    .withFullPaths()
+    .crawl(crawlFrom)
+    .sync();
+
+  if (files.length === 0 && !crawlFiles) {
     console.error(`No files found to scan.`);
     process.exit(1);
   }
@@ -123,5 +135,7 @@ async function run({
 
   return prevResults[prevResults.length - 1];
 }
+
+run.grabFilesByDir = grabFilesByDir;
 
 module.exports = run;
