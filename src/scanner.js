@@ -4,6 +4,7 @@ const { validateConfig } = require("./utils");
 const runScan = require("./run");
 
 const scanner = {
+  grabFilesByDir: run.grabFilesByDir,
   run: async function run(config, configDir, method = "programmatic") {
     const { crawlFrom, errors } = validateConfig(config, configDir);
 
