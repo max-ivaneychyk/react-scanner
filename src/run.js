@@ -34,14 +34,14 @@ async function run({
 }) {
   const rootDir = config.rootDir || configDir;
   const globs = config.globs || DEFAULT_GLOBS;
-  const files = crawlFiles || new fdir()
+  const files = config.crawlFiles || new fdir()
     .glob(...globs)
     .exclude(getExcludeFn(config.exclude))
     .withFullPaths()
     .crawl(crawlFrom)
     .sync();
 
-  if (files.length === 0 && !crawlFiles) {
+  if (files.length === 0 && !config.crawlFiles) {
     console.error(`No files found to scan.`);
     process.exit(1);
   }
